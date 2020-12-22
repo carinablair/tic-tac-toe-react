@@ -1,82 +1,98 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
-// import App from './App';
-import * as serviceWorker from './serviceWorker';
-import { number } from 'prop-types';
+import React from "react";
+import ReactDOM from "react-dom";
+import "./index.css";
+import * as serviceWorker from "./serviceWorker";
 
-interface SquareProps {value:number};
-interface SquareState {value:string};
-
-class Square extends React.Component<SquareProps, SquareState> {
-    constructor(props: SquareProps) {
-        super(props);
-        this.state = {
-            value: '',
-        };
-    }
-
-    render() {
-        return (
-            <button className="square" 
-                    onClick={() => this.setState({value: 'X'})}>
-                    {this.state.value}
-            </button>
-        );
-    }
+interface SquareProps {
+  value: number;
+  onClick: () => void;
 }
 
-class Board extends React.Component {
-    renderSquare(i:number) {
-        return <Square value={i} />;
-    }
+interface BoardProps {
+  value: number;
+}
 
-    render() {
-        const status = 'Next player: X';
+interface BoardState {
+  squares: any[];
+}
 
-        return(
-            <div>
-                <div className="status">{status}</div>
-                <div className="board-row">
-                    {this.renderSquare(0)}
-                    {this.renderSquare(1)}
-                    {this.renderSquare(2)}
-                </div>
-                <div className="board-row">
-                    {this.renderSquare(3)}
-                    {this.renderSquare(4)}
-                    {this.renderSquare(5)}
-                </div>
-                <div className="board-row">
-                    {this.renderSquare(6)}
-                    {this.renderSquare(7)}
-                    {this.renderSquare(8)}
-                </div>
-            </div>
-        );
-    }
+class Square extends React.Component<SquareProps> {
+  render() {
+    return (
+      <button className="square" onClick={() => this.props.onClick()}>
+        {this.props.value}
+      </button>
+    );
+  }
+}
+
+class Board extends React.Component<BoardProps, BoardState> {
+  constructor(props: BoardProps) {
+    super(props);
+    this.state = { squares: Array(9).fill(null) };
+  }
+
+  handleClick(i: number) {
+    const squares = this.state.squares.slice();
+    squares[i] = "X";
+    this.setState({ squares: squares });
+  }
+
+  renderSquare(i: number) {
+    return (
+      <Square
+        value={this.state.squares[i]}
+        onClick={() => this.handleClick(i)}
+      />
+    );
+  }
+
+  render() {
+    const status = "Next player: X";
+
+    return (
+      <div>
+        <div className="status">{status}</div>
+        <div className="board-row">
+          {this.renderSquare(0)}
+          {this.renderSquare(1)}
+          {this.renderSquare(2)}
+        </div>
+        <div className="board-row">
+          {this.renderSquare(3)}
+          {this.renderSquare(4)}
+          {this.renderSquare(5)}
+        </div>
+        <div className="board-row">
+          {this.renderSquare(6)}
+          {this.renderSquare(7)}
+          {this.renderSquare(8)}
+        </div>
+      </div>
+    );
+  }
 }
 
 class Game extends React.Component {
-    render() {
-        return (
-            <div className="game">
-                <div className="game-board">
-                    <Board/>
-                </div>
-                <div className="game-info">
-                    <div>{/* status */}</div>
-                    <ol>{/* TODO */}</ol>
-                </div>
-            </div>
-        );
-    }
+  renderBoard(i: number) {
+    return <Board value={i} />;
+  }
+
+  render() {
+    return (
+      <div className="game">
+        <div className="game-board">{this.renderBoard(9)}</div>
+
+        <div className="game-info">
+          <div>{/* status */}</div>
+          <ol>{/* TODO */}</ol>
+        </div>
+      </div>
+    );
+  }
 }
 
-ReactDOM.render(
-<Game />, 
-document.getElementById('root')
-);
+ReactDOM.render(<Game />, document.getElementById("root"));
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
