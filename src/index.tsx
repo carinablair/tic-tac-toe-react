@@ -23,6 +23,7 @@ interface GameProps {}
 interface GameState {
   history: BoardValue[];
   xIsNext: boolean;
+  stepNumber: number;
 }
 
 function Square(props: SquareProps) {
@@ -72,11 +73,12 @@ class Game extends React.Component<GameProps, GameState> {
     this.state = {
       history: [Array(9).fill(null)],
       xIsNext: true,
+      stepNumber: 0,
     };
   }
 
   handleClick(i: number) {
-    const history = this.state.history;
+    const history = this.state.history.slice(0, this.state.stepNumber + 1);
     const current = history[history.length - 1];
 
     const squares = current.slice();
@@ -88,6 +90,7 @@ class Game extends React.Component<GameProps, GameState> {
     this.setState({
       history: history.concat([squares]),
       xIsNext: !this.state.xIsNext,
+      stepNumber: history.length,
     });
   }
 
@@ -102,10 +105,24 @@ class Game extends React.Component<GameProps, GameState> {
     );
   }
 
+  jumpTo(step: number) {
+    this.setState({ stepNumber: step, xIsNext: step % 2 === 0 });
+  }
+
   render() {
     const history = this.state.history;
-    const squares = history[history.length - 1];
+    const squares = history[this.state.stepNumber];
     const winner = calculateWinner(squares);
+
+    const moves = history.map((step, move) => {
+      const desc = move ? "Go to move #" + move : "Go to game start";
+      return (
+        <li key={move}>
+          <button onClick={() => this.jumpTo(move)}>{desc}</button>
+        </li>
+      );
+    });
+
     let status =
       winner !== null
         ? "Winner: " + winner
@@ -116,7 +133,7 @@ class Game extends React.Component<GameProps, GameState> {
 
         <div className="game-info">
           <div>{status}</div>
-          <ol>{/* TODO */}</ol>
+          <ol>{moves}</ol>
         </div>
       </div>
     );
